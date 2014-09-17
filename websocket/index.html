@@ -29,7 +29,7 @@
 
 	function onOpen(evt) { 
 		writeToScreen("CONNECTED"); 
-		doSend("websocketにメッセージを送信"); 
+		doSend("websocketにメッセージを送信",Math.random()); 
 	}  
 
 	function onClose(evt) { 
@@ -39,9 +39,9 @@
 
 	function onMessage(evt) { 
 
-		jsonData=JSON.parse(evt.data)
+		var jsonData=JSON.parse(evt.data)
 
-		writeToScreen('<span style="color: blue;">RESPONSE: ' + jsonData.Msg+'</span>'); 
+		writeToScreen('<span style="color: blue;">RESPONSE: ' + jsonData.Msg+",no:"+jsonData.Count+'</span>'); 
 		websocket.close(); 
 	}  
 
@@ -50,11 +50,12 @@
 		writeToScreen('<span style="color: red;">ERROR:</span> ' + evt.data); 
 	}  
 
-	function doSend(message) { 
-		writeToScreen("SENT: " + message);  
-		jsonData={
+	function doSend(message,number) { 
+
+		writeToScreen("SENT: " + message+",no: "+number);  
+		var jsonData={
 			Msg:message,
-			Count:1
+			Count:number
 		}
 
 		websocket.send(JSON.stringify(jsonData)); 

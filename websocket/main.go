@@ -12,7 +12,7 @@ func echoHandler(ws *websocket.Conn) {
 
 	type T struct {
 		Msg   string
-		Count int
+		Count float64
 	}
 
 	// receive JSON type T
