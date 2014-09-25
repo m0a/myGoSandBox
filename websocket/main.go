@@ -50,7 +50,7 @@ func echoHandler(ws *websocket.Conn) {
 
 func main() {
 
-	// http.Handle("/echo", websocket.Handler(echoHandler))
+//	http.Handle("/echo", websocket.Handler(echoHandler))
 	http.Handle("/", http.FileServer(http.Dir("./")))
 
 	http.HandleFunc("/echo",
