@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -14,7 +13,7 @@ func main() {
 	fmt.Println("run Server")
 
 	http.Handle("/files/", http.StripPrefix("/files/", http.FileServer(http.Dir("."))))
-	http.HandleFunc("/thumbnail", thumbnailHandler)
+	// http.HandleFunc("/thumbnail", thumbnailHandler)
 	http.HandleFunc("/play/", playHandler)
 	http.HandleFunc("/", rootHandler)
 
@@ -27,7 +26,7 @@ func main() {
 // カレントフォルダ内のmp4ファイルの一覧表示
 func rootHandler(w http.ResponseWriter, r *http.Request) {
 
-	fmt.Printf("run rootHandler")
+	// fmt.Printf("run rootHandler")
 	list, err := ioutil.ReadDir(".")
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "error: %v", err)
@@ -40,18 +39,19 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 			continue
 		}
 
-		fmt.Fprintf(w, "a= <a href='/play/%s' >%s</a><br>", finfo.Name(), finfo.Name())
+		fmt.Fprintf(w, "<a href='/play/%s' >%s</a><br>", finfo.Name(), finfo.Name())
 	}
 
-	str := `
-	<form action="http://localhost:9999/thumbnail" method="post" enctype="multipart/form-data">
-	<label for="file">Filename:</label>
-	<input type="file" name="file" id="file">
-	<input type="submit" name="submit" value="Submit">
-	</form>
-	`
-
-	fmt.Fprintf(w, "%s", str)
+	// str := `
+	// <form action="http://localhost:9999/thumbnail" method="post" enctype="multipart/form-data">
+	// <label for="file">Filename:</label>
+	// <input type="file" name="file" id="file">
+	// <input type="submit" name="submit" value="Submit">
+	// </form>
+	// `
+	//
+	// fmt.Fprintf(w, "%s", str)
+	//
 	fmt.Fprintf(w, "</html>")
 
 }
@@ -69,7 +69,7 @@ func playHandler(w http.ResponseWriter, r *http.Request) {
 		</head>
 		<body>
 		<video id="example_video_1" class="video-js vjs-default-skin"
-			controls preload="auto" width="640" height="264"
+			controls preload="auto" width="1024" height="768"
 				data-setup='{"example_option":true}'>
 				<source src="/files/` + filename + `" type='video/mp4' />
 				<p class="vjs-no-js">To view this video please enable JavaScript, and consider upgrading to a web browser that <a href="http://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a></p>
@@ -82,35 +82,35 @@ func playHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 //
-func thumbnailHandler(w http.ResponseWriter, r *http.Request) {
-
-	if r.Method == "POST" {
-		file, header, err := r.FormFile("file")
-
-		if err != nil {
-			fmt.Printf("error %v", err)
-			return
-		}
-
-		defer file.Close()
-
-		out, err := os.Create("test.jpg")
-		if err != nil {
-			fmt.Printf("error %v", err)
-			return
-		}
-
-		defer out.Close()
-
-		_, err = io.Copy(out, file)
-		if err != nil {
-			fmt.Printf("error %v", err)
-			return
-		}
-
-		fmt.Printf("file upload success! %v", header.Filename)
-
-	} else {
-		fmt.Printf("Method is %v", r.Method)
-	}
-}
+// func thumbnailHandler(w http.ResponseWriter, r *http.Request) {
+//
+// 	if r.Method == "POST" {
+// 		file, header, err := r.FormFile("file")
+//
+// 		if err != nil {
+// 			fmt.Printf("error %v", err)
+// 			return
+// 		}
+//
+// 		defer file.Close()
+//
+// 		out, err := os.Create("test.jpg")
+// 		if err != nil {
+// 			fmt.Printf("error %v", err)
+// 			return
+// 		}
+//
+// 		defer out.Close()
+//
+// 		_, err = io.Copy(out, file)
+// 		if err != nil {
+// 			fmt.Printf("error %v", err)
+// 			return
+// 		}
+//
+// 		fmt.Printf("file upload success! %v", header.Filename)
+//
+// 	} else {
+// 		fmt.Printf("Method is %v", r.Method)
+// 	}
+// }
