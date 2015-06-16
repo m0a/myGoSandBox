@@ -14,8 +14,9 @@ func main() {
 	fmt.Println("run Server")
 
 	http.Handle("/files/", http.StripPrefix("/files/", http.FileServer(http.Dir("."))))
-	http.HandleFunc("/", rootHandler)
 	http.HandleFunc("/thumbnail", thumbnailHandler)
+	http.HandleFunc("/play/", playHandler)
+	http.HandleFunc("/", rootHandler)
 
 	err := http.ListenAndServe(":9999", nil)
 	if err != nil {
@@ -26,6 +27,7 @@ func main() {
 // カレントフォルダ内のmp4ファイルの一覧表示
 func rootHandler(w http.ResponseWriter, r *http.Request) {
 
+	fmt.Printf("run rootHandler")
 	list, err := ioutil.ReadDir(".")
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "error: %v", err)
@@ -38,7 +40,7 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 			continue
 		}
 
-		fmt.Fprintf(w, "a= <a href='/files/%s' >%s</a><br>", finfo.Name(), finfo.Name())
+		fmt.Fprintf(w, "a= <a href='/play/%s' >%s</a><br>", finfo.Name(), finfo.Name())
 	}
 
 	str := `
@@ -51,6 +53,30 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Fprintf(w, "%s", str)
 	fmt.Fprintf(w, "</html>")
+
+}
+
+func playHandler(w http.ResponseWriter, r *http.Request) {
+	// fmt.Fprintf(w, "run play handler %v", strings.Trim(r.URL.Path, "/play/"))
+	filename := strings.Trim(r.URL.Path, "/play/")
+	playhtml := `
+	<html>
+		<head>
+		<link href="//vjs.zencdn.net/4.12/video-js.css" rel="stylesheet">
+		<script src="//vjs.zencdn.net/4.12/video.js"></script>
+		</head>
+		<body>
+		<video id="example_video_1" class="video-js vjs-default-skin"
+			controls preload="auto" width="640" height="264"
+				poster="http://video-js.zencoder.com/oceans-clip.png"
+				data-setup='{"example_option":true}'>
+				<source src="/files/` + filename + `" type='video/mp4' />
+				<p class="vjs-no-js">To view this video please enable JavaScript, and consider upgrading to a web browser that <a href="http://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a></p>
+				</video>
+		</body>
+	</html>
+	`
+	fmt.Fprint(w, playhtml)
 
 }
 
