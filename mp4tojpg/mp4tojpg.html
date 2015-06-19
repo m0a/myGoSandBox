@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>mp4 2 jpeg test</title>
+    <script src="mp4tojpg.js" charset="utf-8"></script>
+    <link rel="stylesheet" href="mp4tojpg.css" media="screen" title="no title" charset="utf-8">
+  </head>
+  <body>
+    <div>
+    <video id="video1" src="sample02.mp4"  muted=true loop ></video>
+    <canvas id="canvas1"  >
+      Your browser does not support HTML5 Canvas.
+    </canvas>
+    <button onclick="capture();">
+        Capture
+    </button>
+    <a id="svImg" download="fawn.jpg">
+        Save to JPEG
+    </a>
+</div>
+<script type="text/javascript">
+var theCanvas;
+// var context;
+var videoElement;
+var dataUrl;
+
+function  drawVideo () {
+    theCanvas = document.getElementById("canvas1");
+    theCanvas.width = videoElement.videoWidth/2;
+    theCanvas.height = videoElement.videoHeight/2;
+
+      var context = theCanvas.getContext("2d");
+
+      //Background
+      context.fillStyle = '#ffffaa';
+      context.fillRect(0, 0, theCanvas.width, theCanvas.height);
+      //video
+      context.drawImage(videoElement , 0, 0,theCanvas.width,theCanvas.height);
+      window.requestAnimationFrame(drawVideo);
+}
+function capture() {
+
+    // dataUrl = theCanvas.toDataURL("image/jpeg");
+    //document.getElementById("svImg").setAttribute("href", dataUrl);
+
+    var toBinary = function(canvas) {
+      var base64 = canvas.toDataURL('image/jpeg'),
+      bin = atob(base64.replace(/^.*,/, '')),
+      buffer = new Uint8Array(bin.length);
+      for (var i = 0; i < bin.length; i++) {
+        buffer[i] = bin.charCodeAt(i);
+      }
+      return buffer;
+    }
+
+    // Binaryデータを作成
+  var buf = toBinary(theCanvas);
+
+  var xhr = new XMLHttpRequest();
+  xhr.open('POST', '/send', true);
+  // xhr.onload = function(e) {
+  //   console.log("error:"+e);
+  // };
+  xhr.onreadystatechange = function(e) {
+      if ( 4 == this.readyState ) {
+          console.log(['xhr upload complete', e]);
+      }
+  };
+  var formData = new FormData();
+  var blob = new Blob([buf.buffer], {
+    type: 'image/jpeg'
+  });
+  formData.append("file", blob,"sample01.jpg");
+  xhr.send(formData);
+
+  // var request = {
+  //   url: 'http://localhost:4567/binary',
+  //   method: 'POST',
+  //   xhr2: true,
+  //   rawData: buf.buffer,
+  //   success: function (response) {
+  //       console.log(response.responseText);
+  //   }
+  // };
+  //
+  //   Ext.Ajax.request(request);
+}
+
+window.onload = function(){
+    videoElement = document.getElementById("video1");
+     videoElement.play();
+     drawVideo();
+
+
+}
+
+</script>
+  </body>
+</html>
